@@ -1,0 +1,640 @@
+/* ==========================================================================
+   Mary Margrill — Press article preview
+   --------------------------------------------------------------------------
+   1. TOKENS            Mirrors the live theme's :root values (MME Theme 5.0.0).
+                        The live theme already defines these — do not port.
+   2. PREVIEW CONTEXT   Announcement bar, header and footer rebuilt from the
+                        live site's CSS so the page can be judged in context.
+                        The live theme supplies all of this — do not port.
+   3. PRESS SHARED      Masthead band, clipping wall, link, button. Port.
+   4. PRESS ARTICLE     article.press template. Port.
+   5. PRESS LANDING     blog.press template. Port.
+   ========================================================================== */
+
+
+/* 1. TOKENS ================================================================ */
+
+:root {
+  --color-bg: #ffffff;
+  --color-text: #484545;
+  --color-primary: #484545;
+  --color-secondary: #c6aa68;
+  --color-highlight: #d0c28f;
+  --header-text: #32241c;
+  --font-body: 'Jost', system-ui, sans-serif;
+  --font-heading: 'Montserrat', system-ui, sans-serif;
+  --body-weight: 300;
+  --heading-weight: 300;
+  --heading-spacing: -0.01em;
+  --max-width: 1200px;
+}
+
+
+/* 2. PREVIEW CONTEXT (supplied by the live theme) ========================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: var(--body-weight);
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; color: inherit; }
+
+.announcement-bar {
+  background: var(--color-primary);
+  color: var(--color-bg);
+  text-align: center;
+  padding: 10px 16px;
+  font-size: .82rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+
+.site-header {
+  background: var(--color-bg);
+  border-bottom: 1px solid rgba(43, 36, 32, .12);
+  position: sticky;
+  top: 0;
+  z-index: 150;
+}
+.site-header__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6px 24px;
+  display: flex;
+  align-items: center;
+}
+.site-header__logo { display: flex; align-items: center; flex-shrink: 0; margin-right: 40px; }
+.site-header__logo img { height: 24px; width: auto; }
+.site-nav { display: flex; list-style: none; align-items: center; }
+.site-nav a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--header-text);
+  white-space: nowrap;
+  transition: color .15s;
+}
+.site-nav a:hover { color: var(--color-primary); }
+.site-nav__chevron { opacity: .6; flex-shrink: 0; }
+.site-header__icons { display: flex; align-items: center; gap: 12px; margin-left: auto; flex-shrink: 0; }
+.header-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--header-text);
+  cursor: pointer;
+  transition: background .15s;
+}
+.header-icon-btn:hover { background: rgba(0, 0, 0, .06); }
+.header-search-btn { width: max-content; height: 46px; padding: 0 8px; gap: 9px; border-radius: 0; }
+.header-search-btn:hover { background: none; }
+.header-search-label { font-size: .8rem; font-weight: 600; letter-spacing: .1em; line-height: 1; }
+.hamburger-btn { display: none; }
+
+/* Preview-only annotation; not part of the port. */
+.preview-note {
+  padding: 10px 24px;
+  background: #f4f1ea;
+  font-size: .875rem;
+  text-align: center;
+}
+
+.site-footer {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-top: 1px solid rgba(43, 36, 32, .12);
+}
+.footer__main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px;
+}
+.footer__newsletter h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-spacing);
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.footer__newsletter p { font-size: .88rem; opacity: .75; margin-bottom: 20px; }
+.footer__email-form { display: flex; }
+.footer__email-input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 16px;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-right: none;
+  color: var(--color-bg);
+  font-size: .87rem;
+}
+.footer__email-input::placeholder { color: rgba(247, 243, 237, .4); }
+.footer__email-submit {
+  padding: 13px 20px;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+  color: var(--color-bg);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s;
+}
+.footer__email-submit:hover { background: var(--color-primary); }
+.footer__links h4 {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .7;
+  margin-bottom: 16px;
+}
+.footer__links ul { list-style: none; }
+.footer__links li { margin-bottom: 8px; }
+.footer__links a { font-size: .88rem; opacity: .75; transition: opacity .2s; }
+.footer__links a:hover { opacity: 1; }
+.footer__bottom {
+  border-top: 1px solid rgba(247, 243, 237, .15);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.footer__bottom p { font-size: .78rem; opacity: .4; }
+
+@media (max-width: 900px) {
+  .footer__main { grid-template-columns: 1fr; gap: 36px; }
+}
+/* Preview-only deviation: the live theme switches at 768px, but its desktop
+   header needs ~909px of content width, so it overflows from 769–~920px.
+   The preview switches at 960px instead. The live site is unchanged. */
+@media (max-width: 960px) {
+  .site-header__inner {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 80px;
+    gap: 8px;
+    padding: 12px 10px;
+  }
+  .hamburger-btn { display: flex; }
+  .site-nav__desktop { display: none; }
+  .site-header__logo { margin: 0; justify-content: center; min-width: 0; }
+  .site-header__logo img { max-width: 100%; object-fit: contain; }
+  .site-header__icons { gap: 4px; }
+  .header-search-btn { width: 44px; padding: 0; }
+  .header-search-label { display: none; }
+}
+@media (max-width: 600px) {
+  .footer__email-form { flex-direction: column; }
+  .footer__email-input { border-right: 1px solid rgba(255, 255, 255, .3); }
+  .footer__email-submit { width: 100%; }
+  .footer__bottom { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* 3. PRESS SHARED — port ================================================== */
+/* Idea: the publications are the headline. Their names are set like
+   mastheads on the theme's dark band; their pages are shown whole on white.
+   Clipping files carry a white canvas and a baked paper shadow, so a clipping
+   is only ever placed on white, never on the dark band.                     */
+
+/* v2 — client direction: only the fonts her website uses. Display sizes use
+   the theme heading face (Montserrat 300), everything else Jost. */
+.press-landing,
+.press-article {
+  --font-display: var(--font-heading);
+}
+
+.press-band {
+  background: var(--color-primary);
+  color: var(--color-bg);
+}
+.press-band__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 80px 24px 72px;
+}
+.press-eyebrow {
+  font-size: .875rem; /* 14px floor; the theme's eyebrow is 12px */
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.press-display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  /* 2.4rem floor so a one-word title ("WeddingChannel.com") fits 390px;
+     Liquid adds <wbr> before ".com", overflow-wrap is the last resort. */
+  font-size: clamp(2.4rem, 8vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.press-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 5px;
+  transition: text-decoration-color .2s;
+}
+.press-link:hover { text-decoration-color: var(--color-secondary); }
+.press-link svg { flex-shrink: 0; transition: transform .2s; }
+.press-link:hover svg.is-back { transform: translateX(-3px); }
+.press-link:hover svg.is-forward { transform: translateX(3px); }
+
+/* Clipping wall: an even grid of equal squares. The web-ready files are all
+   2048×2048 with the air already composed around each clipping, so they are
+   shown exactly as supplied — never trimmed, cropped or object-fit. The
+   files' own white margin does the spacing; the grid gap stays small.      */
+.press-wall {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px 24px;
+}
+.press-tile {
+  min-width: 0;
+  scroll-margin-top: 96px;
+}
+.press-tile__media {
+  display: block;
+  aspect-ratio: var(--ar);
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+}
+.press-tile__media img { width: 100%; height: 100%; }
+.press-tile__pub {
+  overflow-wrap: break-word;
+  margin-top: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--color-primary);
+}
+.press-tile__meta {
+  margin-top: 2px;
+  font-size: .875rem;
+  line-height: 1.5;
+}
+.press-tile__meta span + span::before { content: ' · '; }
+/* Hover and keyboard focus share one state: a faint champagne ground comes
+   up behind the tile, the clipping lifts, its title takes the gold underline
+   and the cue's arrow steps forward.
+   The ground is --color-secondary (#C6AA68) at 9%. The clipping files are
+   white squares, so the media layer multiplies onto the ground: the white
+   canvas takes the tint instead of showing as a white box. On white (no
+   hover) multiply changes nothing. The ground sits in the gap (12px < 24px
+   column gap), so nothing reflows. */
+a.press-tile__link {
+  display: block;
+  position: relative;
+  isolation: isolate;
+}
+a.press-tile__link::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  border-radius: 4px;
+  background: rgba(198, 170, 104, .09);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+a.press-tile__link:is(:hover, :focus-visible)::before { opacity: 1; }
+.press-tile__media { mix-blend-mode: multiply; }
+a.press-tile__link:is(:hover, :focus-visible) .press-tile__media { transform: translateY(-6px); }
+a.press-tile__link:is(:hover, :focus-visible) .press-tile__pub {
+  text-decoration: underline;
+  text-decoration-color: var(--color-secondary);
+  text-underline-offset: 5px;
+}
+.press-tile__cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin-top: 6px;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.press-tile__cue svg { flex-shrink: 0; transition: transform .25s ease; }
+a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue svg { transform: translateX(3px); }
+
+/* Pointer devices only, landing wall only: the cue appears on hover. Its
+   space is reserved, so nothing moves. On touch the cue is always shown.
+   Neighbouring clippings are deliberately left untouched (no dimming). */
+@media (hover: hover) and (pointer: fine) {
+  .press-landing__wall .press-tile__cue {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .press-landing__wall a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* No separate :target style: after jumping to a tile from the publication
+   list it looked like a second, stuck hover. One hover state only. */
+
+/* Theme button (.btn-primary in base.css), restated for the preview. */
+.press-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 2px;
+  transition: background .15s, border-color .15s;
+}
+.press-btn:hover { background: #c9a96e; border-color: #c9a96e; color: #f7f3ed; }
+
+.press-band a:focus-visible { outline: 2px solid var(--color-bg); outline-offset: 4px; }
+.press-article a:focus-visible,
+.press-landing a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+
+/* 4. PRESS ARTICLE — port ================================================= */
+
+.press-article__masthead { margin-top: 48px; }
+.press-article__issue {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  font-size: 1.125rem;
+}
+
+.press-article__figure {
+  max-width: 1008px; /* 960 + gutters */
+  margin: 0 auto;
+  padding: 56px 24px 0;
+}
+.press-article__image { width: 100%; height: auto; }
+.press-article__zoom { text-align: center; }
+.press-article__zoom a { text-decoration-color: rgba(72, 69, 69, .3); }
+
+.press-article__body {
+  max-width: 688px; /* 640 + gutters */
+  margin: 0 auto;
+  padding: 48px 24px 0;
+}
+.press-article__content {
+  margin-top: 20px;
+  font-size: 1.0625rem;
+  font-weight: 400; /* theme body is 300; one step up for sustained reading */
+  line-height: 1.8;
+}
+.press-article__content p + p { margin-top: 1.1em; }
+/* The item's own headline, when the clipping has one (rich-text H2). */
+.press-article__content h2 {
+  margin-bottom: .35em;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: var(--heading-spacing);
+  color: var(--color-primary);
+}
+.press-article__content p + h2 { margin-top: 1.4em; }
+.press-article__content strong { font-weight: 600; letter-spacing: .02em; }
+.press-article__credit {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, .1);
+  font-size: .875rem;
+}
+
+.press-article__pager {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 96px 24px 104px;
+}
+.press-article__pager-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 24px;
+  margin-bottom: 32px;
+}
+.press-article__pager-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: var(--heading-spacing);
+  color: var(--color-primary);
+}
+/* Previous / next: one column each, clipping beside its label. */
+.press-article__pager .press-wall {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px 32px;
+}
+.press-article__pager .press-tile__link {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+/* Height is fixed; aspect-ratio (--ar) gives the width, so the image keeps
+   its own width/height attributes and needs no auto sizing. */
+.press-article__pager .press-tile__media {
+  flex: 0 0 auto;
+  height: 260px;
+}
+.press-article__pager .press-tile__text { padding-bottom: 16px; min-width: 0; }
+/* Below 900px two columns leave the label ~50px beside a landscape
+   clipping; stack previous above next instead. */
+@media (max-width: 900px) {
+  .press-article__pager .press-wall { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .press-band__inner { padding: 48px 24px; }
+  .press-article__masthead { margin-top: 32px; }
+  .press-article__issue { margin-top: 20px; font-size: 1rem; }
+  /* The image has its own white margin; let it use the gutter. */
+  .press-article__figure { padding: 32px 0 0; }
+  .press-article__body { padding-top: 40px; }
+  .press-article__content { font-size: 1rem; }
+  .press-article__pager { padding: 72px 24px 80px; }
+  .press-article__pager .press-wall { grid-template-columns: 1fr; gap: 32px; }
+  .press-article__pager .press-tile__media { height: 160px; }
+  .press-article__pager .press-tile__text { padding-bottom: 8px; }
+}
+
+
+/* 5. PRESS LANDING — port ================================================= */
+
+.press-landing__title { margin-top: 12px; }
+.press-landing .press-band__inner { padding-top: 64px; padding-bottom: 64px; }
+/* The client's five logos, treated exactly like the theme's
+   .social-proof-bar on the home page: white via filter, 36px high, 0.7. */
+.press-logos {
+  margin-top: 40px;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 48px;
+}
+.press-logos__link,
+.press-logos__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+/* Client direction: all logos solid white, no underline; the hovered
+   (or keyboard-focused) logo dims — the same for all five, linked or not. */
+.press-logos img {
+  height: 36px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  opacity: 1;
+  transition: opacity .2s ease;
+}
+.press-logos__link:is(:hover, :focus-visible) img,
+.press-logos__item:hover img { opacity: .55; }
+
+.press-roll {
+  margin-top: 28px;
+  max-width: 1040px;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 1.75;
+  text-wrap: balance;
+}
+/* A name never breaks; its separator travels with it, so lines end on a
+   dot instead of starting with one. */
+.press-roll li { display: inline; white-space: nowrap; }
+.press-roll li:not(:last-child)::after {
+  content: '·';
+  margin: 0 .3em 0 .45em;
+  color: var(--color-secondary);
+}
+.press-roll a {
+  padding: 12px 0; /* inline padding widens the tap target to 44px, not the line */
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, .25);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color .2s;
+}
+.press-roll a:hover { text-decoration-color: var(--color-secondary); }
+
+.press-landing__wall {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 56px 24px 0;
+}
+.press-landing__end {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 104px 24px 112px;
+  text-align: center;
+}
+.press-landing__end-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: var(--heading-spacing);
+  color: var(--color-primary);
+  text-wrap: balance;
+}
+.press-landing__end .press-btn { margin-top: 32px; }
+
+@media (max-width: 1024px) {
+  .press-landing__wall .press-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .press-logos { gap: 12px 32px; margin-top: 32px; }
+  .press-logos img { height: 28px; }
+  .press-roll { margin-top: 24px; line-height: 1.8; }
+  .press-landing__wall { padding-top: 48px; }
+  .press-landing__wall .press-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 12px; }
+  /* Uppercase tracking doesn't fit a 165px column; sentence case keeps the
+     cue on one line at the same 14px. */
+  .press-tile__cue { text-transform: none; letter-spacing: .01em; }
+  .press-tile__pub { font-size: 1rem; }
+  .press-landing__end { padding: 80px 24px 88px; }
+}
+
+/* Reduced motion: nothing travels. The cue and the underline still change
+   state, instantly, so hover keeps its meaning. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .press-logos img { transition: none !important; }
+  .press-tile__media,
+  .press-tile__cue,
+  .press-tile__cue svg,
+  .press-link svg { transition: none !important; }
+  a.press-tile__link:is(:hover, :focus-visible) .press-tile__media,
+  a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue,
+  a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue svg,
+  .press-link:hover svg { transform: none !important; }
+}
+
+/* Landing pagination (Shopify blog, 20 per page): "More press" on page 1,
+   Previous + count on later pages. Uses the theme button. */
+.press-pager {
+  margin-top: 72px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px 32px;
+}
+.press-pager__count { font-size: .875rem; }
