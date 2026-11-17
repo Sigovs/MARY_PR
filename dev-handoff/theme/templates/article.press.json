@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-article-press",
+      "settings": {
+        "media_url": "/pages/videos",
+        "back_label": "Back to Media",
+        "all_label": "All media"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

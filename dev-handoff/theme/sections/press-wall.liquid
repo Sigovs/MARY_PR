@@ -1,0 +1,276 @@
+{%- comment -%}
+  Press clippings: her five logos, the clipping grid (12 per page, 3 rows of 4),
+  the page numbers, and "More press" (every other publication once, with
+  "See more"), closed by a thin gold line.
+
+  Where it goes: on her Media page (/pages/videos), in place of the current
+  "AI" press grid. Her heading ("MEDIA" / "PRESS and VIDEOS"), her video
+  sections and her contact section stay as they are, above and below it.
+  The same section also renders the press blog itself (templates/blog.press.json,
+  heading on), so /blogs/press looks the same.
+
+  Data: the articles of the blog picked in the "Press blog" setting (set it
+  on both the Media page and the blog template). Newest publish date first,
+  so the grid order is set by each article's publish date (see the README).
+  paginate must name the array directly (section.settings.blog.articles), and
+  the for loop inside it must use the same expression.
+{%- endcomment -%}
+
+{{ 'section-press.css' | asset_url | stylesheet_tag }}
+
+{%- assign press_blog = section.settings.blog -%}
+
+<div class="press-landing" style="--press-pad-top: {{ section.settings.padding_top }}px;">
+  {%- if press_blog == blank -%}
+    {%- if request.design_mode -%}
+      <p class="press-empty">Choose the press blog in this section's settings.</p>
+    {%- endif -%}
+  {%- else -%}
+
+    {%- comment -%} Heading (blog template only) + the five logos {%- endcomment -%}
+    <header class="press-head{% unless section.settings.show_heading %} press-head--logos-only{% endunless %}">
+      {%- if section.settings.show_heading -%}
+        <h1 class="press-head__title">{{ section.settings.title | escape }}</h1>
+        {%- if section.settings.subtitle != blank -%}
+          <p class="press-head__sub">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="press-logos" aria-label="Featured publications">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign logo_url = block.settings.link
+              if logo_url == blank and block.settings.publication != blank
+                for a in press_blog.articles
+                  if a.title == block.settings.publication
+                    assign logo_url = a.url
+                    break
+                  endif
+                endfor
+              endif
+            -%}
+            {%- capture logo -%}
+              {%- if block.settings.image != blank -%}
+                {{- block.settings.image | image_url: height: 72 | image_tag: alt: block.settings.publication, loading: 'lazy' -}}
+              {%- else -%}
+                <span class="press-logos__name">{{ block.settings.publication | escape }}</span>
+              {%- endif -%}
+            {%- endcapture -%}
+            <li {{ block.shopify_attributes }}>
+              {%- if logo_url != blank -%}
+                <a class="press-logos__link" href="{{ logo_url }}">{{ logo }}</a>
+              {%- else -%}
+                {%- comment -%} No clipping for this publication yet (Vogue, Harper's BAZAAR): shown, not linked {%- endcomment -%}
+                <span class="press-logos__item">{{ logo }}</span>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </header>
+
+    {%- comment -%} The clipping grid, 12 per page {%- endcomment -%}
+    <section class="press-landing__wall" aria-label="Clippings">
+      {%- paginate section.settings.blog.articles by section.settings.per_page -%}
+        <ul class="press-wall">
+          {%- for article in section.settings.blog.articles -%}
+            {%- render 'press-tile', article: article, cue: 'Read the article' -%}
+          {%- endfor -%}
+        </ul>
+
+        {%- if paginate.pages > 1 -%}
+          {%- assign current_page = paginate.current_page | append: '' -%}
+          {%- comment -%} Three fixed slots: Previous | page numbers | Next. The numbers stay centred on every page. {%- endcomment -%}
+          <nav class="press-pager" aria-label="Press pages">
+            <div class="press-pager__prev">
+              {%- if paginate.previous -%}
+                <a class="press-link" href="{{ paginate.previous.url }}" rel="prev">{% render 'press-icon', icon: 'back' %}Previous</a>
+              {%- endif -%}
+            </div>
+            <ol class="press-pager__pages">
+              {%- for part in paginate.parts -%}
+                {%- assign part_title = part.title | append: '' -%}
+                <li>
+                  {%- if part.is_link -%}
+                    <a class="press-pager__page" href="{{ part.url }}" aria-label="Page {{ part.title }}">{{ part.title }}</a>
+                  {%- elsif part_title == current_page -%}
+                    <span class="press-pager__page is-current" aria-current="page">{{ part.title }}</span>
+                  {%- else -%}
+                    <span class="press-pager__page">{{ part.title }}</span>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ol>
+            <div class="press-pager__next">
+              {%- if paginate.next -%}
+                <a class="press-link" href="{{ paginate.next.url }}" rel="next">Next{% render 'press-icon', icon: 'forward' %}</a>
+              {%- endif -%}
+            </div>
+          </nav>
+        {%- endif -%}
+      {%- endpaginate -%}
+    </section>
+
+    {%- comment -%}
+      "More press": every publication not among the logos, once each, in grid
+      order, linking to its first article. Reads all articles (up to 50, the
+      for-loop limit; there are 37).
+    {%- endcomment -%}
+    {%- liquid
+      assign seen = '|'
+      for block in section.blocks
+        assign seen = seen | append: block.settings.publication | append: '|'
+      endfor
+      assign roll_count = 0
+    -%}
+    {%- capture roll -%}
+      {%- for a in press_blog.articles -%}
+        {%- assign key = '|' | append: a.title | append: '|' -%}
+        {%- unless seen contains key -%}
+          {%- assign seen = seen | append: a.title | append: '|' -%}
+          {%- assign roll_count = roll_count | plus: 1 -%}
+          {%- comment -%} The space after </li> is the line-break opportunity between names (each name is nowrap). Keep it. {%- endcomment -%}
+          <li><a href="{{ a.url }}">{{ a.title | escape }}</a></li>{{ ' ' }}
+        {%- endunless -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+
+    {%- if roll_count > 0 -%}
+      <nav class="press-more" aria-labelledby="PressMoreLabel-{{ section.id }}">
+        <h2 class="press-more__label" id="PressMoreLabel-{{ section.id }}">{{ section.settings.more_label | escape }}</h2>
+        <ul class="press-roll" id="PressRoll-{{ section.id }}" data-collapse="{{ section.settings.roll_shown }}">
+          {{- roll -}}
+        </ul>
+        <button class="press-more__toggle" type="button" aria-expanded="false" aria-controls="PressRoll-{{ section.id }}" hidden>
+          <span>See more</span>{% render 'press-icon', icon: 'chevron' %}
+        </button>
+      </nav>
+      <script>
+        (function () {
+          var list = document.getElementById('PressRoll-{{ section.id }}');
+          if (!list) return;
+          var btn = list.parentNode.querySelector('.press-more__toggle');
+          var items = list.children, n = parseInt(list.getAttribute('data-collapse'), 10) || 7;
+          if (!btn || items.length <= n) return;
+          function set(open) {
+            for (var i = n; i < items.length; i++) items[i].hidden = !open;
+            items[n - 1].classList.toggle('is-cut', !open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            btn.querySelector('span').textContent = open ? 'See less' : 'See more';
+          }
+          set(false);
+          btn.hidden = false;
+          btn.addEventListener('click', function () { set(btn.getAttribute('aria-expanded') !== 'true'); });
+        })();
+      </script>
+    {%- endif -%}
+
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Press clippings",
+  "tag": "section",
+  "class": "section-press",
+  "settings": [
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Press blog",
+      "info": "Pick the Press blog (on the Media page and on the blog template)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show heading",
+      "default": false,
+      "info": "Off on the Media page, which has its own heading. On for the press blog template."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "MEDIA"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subheading",
+      "default": "PRESS and VIDEOS"
+    },
+    {
+      "type": "range",
+      "id": "per_page",
+      "label": "Clippings per page",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "default": 12
+    },
+    {
+      "type": "text",
+      "id": "more_label",
+      "label": "Publication list title",
+      "default": "More press"
+    },
+    {
+      "type": "range",
+      "id": "roll_shown",
+      "label": "Names shown before \"See more\"",
+      "min": 3,
+      "max": 20,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Space above the logos (heading off)",
+      "min": 0,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "text",
+          "id": "publication",
+          "label": "Publication",
+          "info": "Exactly as the article title, e.g. \"O, The Oprah Magazine\". The logo links to the first article with this title; with none it is shown unlinked."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Logo"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional, overrides the automatic one)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Press clippings",
+      "blocks": [
+        { "type": "logo", "settings": { "publication": "Vogue" } },
+        { "type": "logo", "settings": { "publication": "InStyle" } },
+        { "type": "logo", "settings": { "publication": "O, The Oprah Magazine" } },
+        { "type": "logo", "settings": { "publication": "Harper's BAZAAR" } },
+        { "type": "logo", "settings": { "publication": "ELLE" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,109 @@
+{%- comment -%}
+  One press article (template: article.press). White page with the Media
+  heading style: back link, publication name (article.title), issue date in
+  gold (press.issue_date). Then the clipping (article.image, shown once and
+  never cropped), the transcribed text (article.content) with its source
+  line, then previous / next from the archive.
+
+  article.published_at is never shown: it only sets the order.
+{%- endcomment -%}
+
+{{ 'section-press.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign issue_date = article.metafields.press.issue_date.value
+  assign byline = article.metafields.press.byline.value
+  assign media_url = section.settings.media_url | default: blog.url
+  assign text = article.content | strip_html | strip
+-%}
+
+<article class="press-article">
+  <header class="press-head press-head--article">
+    <a class="press-link" href="{{ media_url }}">{% render 'press-icon', icon: 'back' %}{{ section.settings.back_label | escape }}</a>
+    <h1 class="press-head__title">{{ article.title | escape | replace: '.com', '<wbr>.com' }}</h1>
+    {%- if issue_date != blank -%}
+      <p class="press-head__sub">{{ issue_date | escape }}</p>
+    {%- endif -%}
+  </header>
+
+  {%- if article.image -%}
+    <figure class="press-article__figure">
+      {{- article.image
+        | image_url: width: 1920
+        | image_tag:
+          class: 'press-article__image',
+          widths: '480, 720, 960, 1440, 1920',
+          sizes: '(min-width: 1008px) 960px, 100vw',
+          alt: article.image.alt,
+          preload: true
+      -}}
+      <figcaption class="press-article__zoom">
+        <a class="press-link" href="{{ article.image | image_url: width: 2048 }}" target="_blank" rel="noopener">View full-size clipping{% render 'press-icon', icon: 'forward' %}<span class="visually-hidden"> (opens in a new tab)</span></a>
+      </figcaption>
+    </figure>
+  {%- endif -%}
+
+  <section class="press-article__body"{% if text != blank %} aria-labelledby="ArticleTextLabel-{{ section.id }}"{% endif %}>
+    {%- if text != blank -%}
+      <p class="press-eyebrow" id="ArticleTextLabel-{{ section.id }}">Article text</p>
+      <div class="press-article__content">
+        {{ article.content }}
+      </div>
+    {%- endif -%}
+    <p class="press-article__credit">
+      Source: <cite>{{ article.title | escape }}</cite>
+      {%- if issue_date != blank %}, {{ issue_date | escape }}{% endif -%}
+      {%- if byline != blank %}, by {{ byline | escape }}{% endif -%}
+      . Text transcribed from the original magazine page.
+    </p>
+  </section>
+
+  {%- comment -%}
+    The grid runs newest first, so the clipping before this one in the grid is
+    blog.previous_article (newer) and the one after it is blog.next_article (older).
+  {%- endcomment -%}
+  {%- if blog.previous_article or blog.next_article -%}
+    <nav class="press-article__pager" aria-label="More from the archive">
+      <div class="press-article__pager-head">
+        <h2 class="press-article__pager-title">More from the archive</h2>
+        <a class="press-link" href="{{ media_url }}">{{ section.settings.all_label | escape }}{% render 'press-icon', icon: 'forward' %}</a>
+      </div>
+      <ul class="press-wall">
+        {%- if blog.previous_article -%}
+          {%- render 'press-tile', article: blog.previous_article, label: 'Previous', cue: 'Read the article', sizes: '260px' -%}
+        {%- endif -%}
+        {%- if blog.next_article -%}
+          {%- render 'press-tile', article: blog.next_article, label: 'Next', cue: 'Read the article', sizes: '260px' -%}
+        {%- endif -%}
+      </ul>
+    </nav>
+  {%- endif -%}
+</article>
+
+{% schema %}
+{
+  "name": "Press article",
+  "tag": "section",
+  "class": "section-press-article",
+  "settings": [
+    {
+      "type": "url",
+      "id": "media_url",
+      "label": "Media page link",
+      "info": "Where \"Back to Media\" and \"All media\" go: the Media page (/pages/videos). Empty = the press blog."
+    },
+    {
+      "type": "text",
+      "id": "back_label",
+      "label": "Back link",
+      "default": "Back to Media"
+    },
+    {
+      "type": "text",
+      "id": "all_label",
+      "label": "All link",
+      "default": "All media"
+    }
+  ]
+}
+{% endschema %}

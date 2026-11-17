@@ -1,0 +1,69 @@
+{
+  "sections": {
+    "main": {
+      "type": "press-wall",
+      "settings": {
+        "blog": "press",
+        "show_heading": true,
+        "padding_top": 24,
+        "per_page": 12,
+        "more_label": "More press",
+        "roll_shown": 7,
+        "title": "MEDIA",
+        "subtitle": "PRESS and VIDEOS"
+      },
+      "blocks": {
+        "logo_vogue": {
+          "type": "logo",
+          "settings": {
+            "publication": "Vogue",
+            "image": "shopify://shop_images/VOGUE_logo_logotype.png",
+            "link": ""
+          }
+        },
+        "logo_instyle": {
+          "type": "logo",
+          "settings": {
+            "publication": "InStyle",
+            "image": "shopify://shop_images/InStyle.svg_4cf06552-0402-4d19-a83e-4c964285b9c2.png",
+            "link": ""
+          }
+        },
+        "logo_oprah": {
+          "type": "logo",
+          "settings": {
+            "publication": "O, The Oprah Magazine",
+            "image": "shopify://shop_images/oprah.png",
+            "link": ""
+          }
+        },
+        "logo_bazaar": {
+          "type": "logo",
+          "settings": {
+            "publication": "Harper's BAZAAR",
+            "image": "shopify://shop_images/Harpers_Bazaar_logo_logotype.png",
+            "link": ""
+          }
+        },
+        "logo_elle": {
+          "type": "logo",
+          "settings": {
+            "publication": "ELLE",
+            "image": "shopify://shop_images/2560px-Elle-Logo.svg_bfa4e4ce-cda2-4bf4-8827-7d25508baaf2.png",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "logo_vogue",
+        "logo_instyle",
+        "logo_oprah",
+        "logo_bazaar",
+        "logo_elle"
+      ]
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

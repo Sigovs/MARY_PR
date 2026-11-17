@@ -1,0 +1,513 @@
+/* ==========================================================================
+   Mary Margrill: Press (Media page clippings + press article pages)
+   --------------------------------------------------------------------------
+   Loaded by sections/press-wall.liquid and sections/main-article-press.liquid.
+   Uses only the theme's own tokens (--color-primary/-text/-secondary,
+   --font-heading/-body, --heading-spacing, --max-width); fallbacks are the
+   live values (MME Theme 5.0.0). Every rule is scoped to .press-landing /
+   .press-article, so nothing else on the site changes.
+   Reference: https://sigovs.github.io/MARY_PR/v4/press.html
+   ========================================================================== */
+
+/* Scoped base (the preview's reset, limited to these two sections).
+   :where() keeps it at zero specificity, so the rules below always win. */
+:where(.press-landing, .press-article),
+:where(.press-landing, .press-article) *,
+:where(.press-landing, .press-article) *::before,
+:where(.press-landing, .press-article) *::after { box-sizing: border-box; }
+:where(.press-landing, .press-article) :where(h1, h2, p, ul, ol, li, figure, figcaption) { margin: 0; padding: 0; }
+:where(.press-landing, .press-article) :where(img) { display: block; max-width: 100%; height: auto; }
+:where(.press-landing, .press-article) :where(a) { color: inherit; text-decoration: none; }
+.press-landing,
+.press-article {
+  font-family: var(--font-body, 'Jost', sans-serif);
+  color: var(--color-text, #484545);
+}
+
+/* Media page: no heading of our own (hers is above), logos first. */
+.press-head--logos-only { padding-top: var(--press-pad-top, 24px); }
+.press-head--logos-only .press-logos { margin-top: 0; }
+.press-logos__name { font-family: var(--font-heading, 'Montserrat', sans-serif); font-size: 1.1rem; }
+.press-empty { max-width: var(--max-width, 1200px); margin: 0 auto; padding: 40px 24px; }
+
+/* 3. PRESS SHARED — port ================================================== */
+/* v3: everything on white, in her Media page's own black + gold heading.
+   Clipping files carry a white canvas and a baked paper shadow, so they are
+   only ever placed on white.                                                */
+
+/* v2 — client direction: only the fonts her website uses. Display sizes use
+   the theme heading face (Montserrat 300), everything else Jost. */
+.press-landing,
+.press-article {
+  --font-display: var(--font-heading, 'Montserrat', sans-serif);
+}
+
+/* v3 — meeting 2026-11-11: no dark band. A white page with the heading of
+   her live Media page (.main-page in base.css): the title in Montserrat 300,
+   dark; the line under it in Jost 300, gold. Article pages use the same. */
+.press-head {
+  max-width: var(--max-width, 1200px);
+  margin: 0 auto;
+  padding: 60px 24px 0;
+}
+.press-head__title {
+  font-family: var(--font-heading, 'Montserrat', sans-serif);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: var(--heading-spacing, -0.01em);
+  color: var(--color-primary, #484545);
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.press-head__sub {
+  margin-top: 24px;
+  font-size: 1.4rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--color-secondary, #c6aa68);
+}
+.press-eyebrow {
+  font-size: .875rem; /* 14px floor; the theme's eyebrow is 12px */
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.press-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 5px;
+  transition: text-decoration-color .2s;
+}
+.press-link:hover { text-decoration-color: var(--color-secondary, #c6aa68); }
+.press-link svg { flex-shrink: 0; transition: transform .2s; }
+.press-link:hover svg.is-back { transform: translateX(-3px); }
+.press-link:hover svg.is-forward { transform: translateX(3px); }
+
+/* Clipping wall: an even grid of equal squares. The web-ready files are all
+   2048×2048 with the air already composed around each clipping, so they are
+   shown exactly as supplied — never trimmed, cropped or object-fit. The
+   files' own white margin does the spacing; the grid gap stays small.      */
+.press-wall {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px 24px;
+}
+.press-tile {
+  min-width: 0;
+  scroll-margin-top: 96px;
+}
+.press-tile__media {
+  display: block;
+  aspect-ratio: var(--ar);
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+}
+.press-tile__media img { width: 100%; height: 100%; }
+.press-tile__pub {
+  overflow-wrap: break-word;
+  margin-top: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--color-primary, #484545);
+}
+.press-tile__meta {
+  margin-top: 2px;
+  font-size: .875rem;
+  line-height: 1.5;
+}
+.press-tile__meta span + span::before { content: ' · '; }
+/* Hover and keyboard focus share one state: a faint champagne ground comes
+   up behind the tile, the clipping lifts, its title takes the gold underline
+   and the cue's arrow steps forward.
+   The ground is --color-secondary (#C6AA68) at 9%. The clipping files are
+   white squares, so the media layer multiplies onto the ground: the white
+   canvas takes the tint instead of showing as a white box. On white (no
+   hover) multiply changes nothing. The ground sits in the gap (12px < 24px
+   column gap), so nothing reflows. */
+a.press-tile__link {
+  display: block;
+  position: relative;
+  isolation: isolate;
+}
+a.press-tile__link::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  border-radius: 4px;
+  background: rgba(198, 170, 104, .09);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+a.press-tile__link:is(:hover, :focus-visible)::before { opacity: 1; }
+.press-tile__media { mix-blend-mode: multiply; }
+a.press-tile__link:is(:hover, :focus-visible) .press-tile__media { transform: translateY(-6px); }
+a.press-tile__link:is(:hover, :focus-visible) .press-tile__pub {
+  text-decoration: underline;
+  text-decoration-color: var(--color-secondary, #c6aa68);
+  text-underline-offset: 5px;
+}
+.press-tile__cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin-top: 6px;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.press-tile__cue svg { flex-shrink: 0; transition: transform .25s ease; }
+a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue svg { transform: translateX(3px); }
+
+/* Pointer devices only, landing wall only: the cue appears on hover. Its
+   space is reserved, so nothing moves. On touch the cue is always shown.
+   Neighbouring clippings are deliberately left untouched (no dimming). */
+@media (hover: hover) and (pointer: fine) {
+  .press-landing__wall .press-tile__cue {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .press-landing__wall a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* No separate :target style: after jumping to a tile from the publication
+   list it looked like a second, stuck hover. One hover state only. */
+
+.press-article a:focus-visible,
+.press-landing a:focus-visible,
+.press-landing button:focus-visible {
+  outline: 2px solid var(--color-primary, #484545);
+  outline-offset: 4px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+
+/* 4. PRESS ARTICLE — port ================================================= */
+
+.press-head--article { padding-top: 32px; }
+.press-head--article .press-head__title { margin-top: 28px; }
+.press-head--article .press-head__sub { margin-top: 12px; }
+
+.press-article__figure {
+  max-width: 1008px; /* 960 + gutters */
+  margin: 0 auto;
+  padding: 48px 24px 0;
+}
+.press-article__image { width: 100%; height: auto; }
+.press-article__zoom { text-align: center; }
+.press-article__zoom a { text-decoration-color: rgba(72, 69, 69, .3); }
+
+.press-article__body {
+  max-width: 688px; /* 640 + gutters */
+  margin: 0 auto;
+  padding: 48px 24px 0;
+}
+.press-article__content {
+  margin-top: 20px;
+  font-size: 1.0625rem;
+  font-weight: 400; /* theme body is 300; one step up for sustained reading */
+  line-height: 1.8;
+}
+.press-article__content p + p { margin-top: 1.1em; }
+/* The item's own headline, when the clipping has one (rich-text H2). */
+.press-article__content h2 {
+  margin-bottom: .35em;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: var(--heading-spacing, -0.01em);
+  color: var(--color-primary, #484545);
+}
+.press-article__content p + h2 { margin-top: 1.4em; }
+.press-article__content strong { font-weight: 600; letter-spacing: .02em; }
+.press-article__credit {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, .1);
+  font-size: .875rem;
+}
+
+.press-article__pager {
+  max-width: var(--max-width, 1200px);
+  margin: 0 auto;
+  padding: 96px 24px 104px;
+}
+.press-article__pager-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 24px;
+  margin-bottom: 32px;
+}
+.press-article__pager-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: var(--heading-spacing, -0.01em);
+  color: var(--color-primary, #484545);
+}
+/* Previous / next: one column each, clipping beside its label. */
+.press-article__pager .press-wall {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px 32px;
+}
+.press-article__pager .press-tile__link {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+/* Height is fixed; aspect-ratio (--ar) gives the width, so the image keeps
+   its own width/height attributes and needs no auto sizing. */
+.press-article__pager .press-tile__media {
+  flex: 0 0 auto;
+  height: 260px;
+}
+.press-article__pager .press-tile__text { padding-bottom: 16px; min-width: 0; }
+/* Below 900px two columns leave the label ~50px beside a landscape
+   clipping; stack previous above next instead. */
+@media (max-width: 900px) {
+  .press-article__pager .press-wall { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .press-head { padding-top: 40px; }
+  .press-head__sub { margin-top: 16px; font-size: 1.2rem; }
+  .press-head--article { padding-top: 16px; }
+  .press-head--article .press-head__title { margin-top: 20px; }
+  /* The image has its own white margin; let it use the gutter. */
+  .press-article__figure { padding: 32px 0 0; }
+  .press-article__body { padding-top: 40px; }
+  .press-article__content { font-size: 1rem; }
+  .press-article__pager { padding: 72px 24px 80px; }
+  .press-article__pager .press-wall { grid-template-columns: 1fr; gap: 32px; }
+  .press-article__pager .press-tile__media { height: 160px; }
+  .press-article__pager .press-tile__text { padding-bottom: 8px; }
+}
+
+
+/* 5. PRESS LANDING — port ================================================= */
+
+/* The client's five logos under the heading, across the content width.
+   Same files and 36px height as the theme's .social-proof-bar; on the white
+   page they are set in the theme's dark text colour (#484545 ≈ black + 72%). */
+.press-logos {
+  margin-top: 56px;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px 40px;
+}
+.press-logos__link,
+.press-logos__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+/* Client direction: no underline; the hovered (or keyboard-focused) logo
+   dims — the same for all five, linked or not. */
+.press-logos img {
+  height: 36px;
+  width: auto;
+  filter: brightness(0) invert(.27);
+  opacity: 1;
+  transition: opacity .2s ease;
+}
+.press-logos__link:is(:hover, :focus-visible) img,
+.press-logos__item:hover img { opacity: .55; }
+
+.press-landing__wall {
+  max-width: var(--max-width, 1200px);
+  margin: 0 auto;
+  padding: 64px 24px 0;
+}
+/* One baseline per row: each tile stretches to the row's tallest, and the
+   cue sits at the bottom, so every "Read the article" lines up whatever the
+   caption length. The hover ground takes the same full height. */
+.press-landing__wall .press-tile { display: flex; }
+.press-landing__wall a.press-tile__link { display: flex; flex-direction: column; width: 100%; }
+.press-landing__wall .press-tile__text { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+.press-landing__wall .press-tile__cue { margin-top: auto; padding-top: 6px; }
+
+/* Every other publication, under the pager: a small label, the names as one
+   running line, then the gold hairline that closes the press part before
+   her videos (v4, client: the list goes above the line). No box, no
+   outline. With JS the list shows its first names (7 by default, one line at desktop); "See more" opens it. */
+.press-more {
+  max-width: var(--max-width, 1200px);
+  margin: 80px auto 0;
+  padding: 0 24px 32px;
+}
+.press-more::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 32px;
+  background: var(--color-secondary, #c6aa68);
+}
+.press-more__label {
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.press-roll {
+  margin-top: 8px;
+  list-style: none;
+  font-family: var(--font-heading, 'Montserrat', sans-serif);
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 1.9;
+}
+/* A name never breaks; its separator travels with it, so lines end on a
+   dot instead of starting with one. */
+.press-roll li { display: inline; white-space: nowrap; }
+.press-roll li:not(:last-child)::after {
+  content: '·';
+  margin: 0 .3em 0 .45em;
+  color: var(--color-secondary, #c6aa68);
+}
+.press-roll a {
+  padding: 12px 0; /* inline padding widens the tap target to 44px, not the line */
+  text-decoration: underline;
+  text-decoration-color: rgba(72, 69, 69, .2);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color .2s;
+}
+.press-roll a:hover { text-decoration-color: var(--color-secondary, #c6aa68); }
+.press-roll li[hidden] { display: none; }
+.press-roll li.is-cut::after { content: none; }
+.press-more__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: inherit;
+  color: var(--color-secondary, #c6aa68);
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.press-more__toggle[hidden] { display: none; }
+.press-more__toggle svg { transition: transform .25s ease; }
+.press-more__toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.press-more__toggle:hover span {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+@media (max-width: 1024px) {
+  .press-landing__wall .press-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* Tablet: the five logos stay on one row, a step smaller. */
+@media (max-width: 900px) {
+  .press-logos { gap: 12px 24px; }
+  .press-logos img { height: 28px; }
+}
+@media (max-width: 600px) {
+  .press-logos { justify-content: center; gap: 4px 24px; margin-top: 40px; }
+  .press-logos img { height: 20px; }
+  .press-landing__wall { padding-top: 48px; }
+  .press-more { margin-top: 64px; padding-bottom: 24px; }
+  .press-landing__wall .press-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 12px; }
+  /* Uppercase tracking doesn't fit a 165px column; sentence case keeps the
+     cue on one line at the same 14px. */
+  .press-tile__cue { text-transform: none; letter-spacing: .01em; }
+  .press-tile__pub { font-size: 1rem; }
+}
+
+/* Reduced motion: nothing travels. The cue and the underline still change
+   state, instantly, so hover keeps its meaning. */
+@media (prefers-reduced-motion: reduce) {
+  .press-logos img,
+  .press-more__toggle svg { transition: none !important; }
+  .press-tile__media,
+  .press-tile__cue,
+  .press-tile__cue svg,
+  .press-link svg { transition: none !important; }
+  a.press-tile__link:is(:hover, :focus-visible) .press-tile__media,
+  a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue,
+  a.press-tile__link:is(:hover, :focus-visible) .press-tile__cue svg,
+  .press-link:hover svg { transform: none !important; }
+}
+
+/* Landing pagination (Shopify blog, 12 per page: 3 rows of 4).
+   Three fixed slots: Previous | page numbers | Next. Both directions
+   share one style, and the numbers sit dead centre on every page. */
+.press-pager {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px 32px;
+}
+.press-pager__prev { justify-self: end; }
+.press-pager__next { justify-self: start; }
+.press-pager__pages {
+  list-style: none;
+  display: flex;
+  gap: 4px;
+}
+.press-pager__page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 1rem;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 6px;
+  transition: text-decoration-color .2s;
+}
+a.press-pager__page:hover { text-decoration-color: var(--color-secondary, #c6aa68); }
+.press-pager__page.is-current {
+  font-weight: 600;
+  text-decoration-color: var(--color-secondary, #c6aa68);
+  text-decoration-thickness: 2px;
+}
+@media (max-width: 600px) {
+  .press-pager {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "pages pages" "prev next";
+    gap: 8px 16px;
+  }
+  .press-pager__pages { grid-area: pages; justify-self: center; }
+  .press-pager__prev { grid-area: prev; justify-self: start; }
+  .press-pager__next { grid-area: next; justify-self: end; }
+}

@@ -1,0 +1,44 @@
+{%- comment -%}
+  One press clipping tile: square image, publication, feature · issue date, cue.
+  Used by the Media page grid (press-wall) and by the article pager.
+
+  Params:
+    article  required  article object
+    label    optional  text before the feature, e.g. 'Previous' / 'Next'
+    cue      optional  e.g. 'Read the article' (omitted = no cue)
+    sizes    optional  image sizes attribute
+
+  The image is the web-ready square exactly as supplied (2048x2048, air
+  already composed in). Never crop it or use object-fit on it.
+{%- endcomment -%}
+{%- liquid
+  assign feature = article.metafields.press.feature.value
+  assign issue_date = article.metafields.press.issue_date.value
+  assign img_sizes = sizes | default: '(min-width: 1200px) 276px, (min-width: 1025px) 23vw, (min-width: 601px) 31vw, 47vw'
+  assign ar = 1
+  if article.image
+    assign ar = article.image.aspect_ratio
+  endif
+-%}
+<li class="press-tile" style="--ar: {{ ar }}">
+  <a class="press-tile__link" href="{{ article.url }}">
+    <span class="press-tile__media">
+      {%- if article.image -%}
+        {{- article.image | image_url: width: 900 | image_tag: widths: '300, 450, 600, 900', sizes: img_sizes, loading: 'lazy', alt: '' -}}
+      {%- endif -%}
+    </span>
+    <div class="press-tile__text">
+      <h2 class="press-tile__pub">{{ article.title | escape | replace: '.com', '<wbr>.com' }}</h2>
+      {%- if label != blank or feature != blank or issue_date != blank -%}
+        <p class="press-tile__meta">
+          {%- if label != blank -%}<span>{{ label | escape }}</span>{%- endif -%}
+          {%- if feature != blank -%}<span>{{ feature | escape }}</span>{%- endif -%}
+          {%- if issue_date != blank -%}<span>{{ issue_date | escape }}</span>{%- endif -%}
+        </p>
+      {%- endif -%}
+      {%- if cue != blank -%}
+        <span class="press-tile__cue">{{ cue | escape }}{% render 'press-icon', icon: 'forward' %}</span>
+      {%- endif -%}
+    </div>
+  </a>
+</li>
